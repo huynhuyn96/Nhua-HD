@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hệ Thống Tính Lương H&amp;D — Tổng Quan &amp; Phương Án</title>
+<style>
+:root {
+  --primary: #4F46E5;
+  --primary-2: #6366F1;
+  --primary-d: #4338CA;
+  --primary-bg: #EEF2FF;
+  --accent: #06B6D4;
+  --accent-bg: #ECFEFF;
+
+  --ink: #0F172A;
+  --slate: #334155;
+  --slate-2: #475569;
+  --mute: #64748B;
+  --line: #E2E8F0;
+  --line-2: #CBD5E1;
+  --paper: #F8FAFC;
+  --paper-2: #F1F5F9;
+  --bg: #FFFFFF;
+
+  --green: #10B981;
+  --green-bg: #ECFDF5;
+  --green-d: #047857;
+  --amber: #F59E0B;
+  --amber-bg: #FFFBEB;
+  --amber-d: #B45309;
+  --red: #EF4444;
+  --red-bg: #FEF2F2;
+  --red-d: #B91C1C;
+  --purple: #A855F7;
+  --purple-bg: #FAF5FF;
+  --orange: #F97316;
+  --orange-bg: #FFF7ED;
+  --blue: #3B82F6;
+  --blue-bg: #EFF6FF;
+
+  --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 2px 8px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 4px 12px rgba(15, 23, 42, 0.08), 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", system-ui, sans-serif;
+  color: var(--slate);
+  background: var(--paper);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  font-size: 15px;
+}
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+/* ============================================================ */
+/* HERO HEADER                                                   */
+/* ============================================================ */
+.hero {
+  background: linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #8B5CF6 100%);
+  color: white;
+  padding: 56px 0 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: "";
+  position: absolute; right: -120px; top: -80px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.hero::after {
+  content: "";
+  position: absolute; left: -100px; bottom: -100px;
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.hero .wrap { position: relative; z-index: 2; }
+.hero h1 {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
+}
+.hero h1 .icon { display: inline-block; margin-right: 12px; }
+.hero .company {
+  font-size: 18px; font-weight: 600;
+  color: rgba(255,255,255,0.95);
+  margin-bottom: 8px;
+}
+.hero .meta {
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.6;
+}
+.hero .month {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 8px 18px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+/* ============================================================ */
+/* TABS                                                          */
+/* ============================================================ */
+.tabs {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: white;
+  border-bottom: 1px solid var(--line);
+  margin-top: -32px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.tabs-inner {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs-inner::-webkit-scrollbar { display: none; }
+.tab {
+  flex-shrink: 0;
+  padding: 18px 24px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--mute);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 8px;
+  font-family: inherit;
+}
+.tab:hover { color: var(--primary); }
+.tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* ============================================================ */
+/* MAIN CONTENT                                                  */
+/* ============================================================ */
+main { padding: 48px 0 80px; }
+
+.panel { display: none; }
+.panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+.section { margin-bottom: 56px; }
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+  display: flex; align-items: center; gap: 10px;
+  letter-spacing: -0.01em;
+}
+.section-sub {
+  color: var(--mute);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* ============================================================ */
+/* FORMULA HERO BOX                                              */
+/* ============================================================ */
+.formula-hero {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-d) 100%);
+  color: white;
+  padding: 32px 36px;
+  border-radius: 16px;
+  margin-bottom: 40px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+.formula-hero::after {
+  content: "Σ";
+  position: absolute;
+  right: 24px; top: -30px;
+  font-size: 200px;
+  font-family: Georgia, serif;
+  font-weight: 700;
+  color: rgba(255,255,255,0.06);
+  line-height: 1;
+}
+.formula-hero .label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 12px;
+  position: relative; z-index: 2;
+}
+.formula-hero .eq {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(20px, 2.4vw, 32px);
+  font-weight: 700;
+  line-height: 1.4;
+  position: relative; z-index: 2;
+}
+.formula-hero .eq .op { color: rgba(6, 182, 212, 1); margin: 0 6px; }
+.formula-hero .note {
+  margin-top: 16px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.85);
+  position: relative; z-index: 2;
+}
+
+/* ============================================================ */
+/* NUMBERED CARDS (4 LAYERS / RULES)                             */
+/* ============================================================ */
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.num-card {
+  background: white;
+  border-radius: 12px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  position: relative;
+  transition: all 0.2s;
+}
+.num-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-2);
+}
+.num-card .num {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+.num-card h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.num-card p {
+  font-size: 12.5px;
+  color: var(--mute);
+  line-height: 1.5;
+}
+
+/* ============================================================ */
+/* PIPELINE FLOW                                                 */
+/* ============================================================ */
+.flow {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 28px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+}
+.flow-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) ;
+  gap: 8px;
+  align-items: stretch;
+}
+.flow-step {
+  text-align: center;
+  position: relative;
+  padding: 8px;
+}
+.flow-step .step-circle {
+  width: 56px; height: 56px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+  position: relative; z-index: 2;
+}
+.flow-step .step-name {
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+.flow-step .step-desc {
+  font-size: 12.5px;
+  color: var(--mute);
+  line-height: 1.45;
+}
+.flow-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 36px; right: -8px;
+  width: calc(100% - 56px - 8px); height: 2px;
+  background: linear-gradient(90deg, var(--primary-2) 0%, var(--line) 100%);
+  z-index: 1;
+}
+@media (max-width: 720px) {
+  .flow-row { grid-template-columns: 1fr 1fr; }
+  .flow-step::after { display: none !important; }
+}
+
+/* ============================================================ */
+/* GLOSSARY TABLE                                                */
+/* ============================================================ */
+.glossary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.glossary .row {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  align-items: baseline;
+}
+.glossary .row .term {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 13.5px;
+}
+.glossary .row .def {
+  font-size: 13px;
+  color: var(--slate);
+}
+
+/* ============================================================ */
+/* COMPARISON TWO-COLS                                            */
+/* ============================================================ */
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+@media (max-width: 720px) { .compare { grid-template-columns: 1fr; } }
+
+.compare-col {
+  background: white;
+  border-radius: 14px;
+  padding: 26px 28px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  border-top: 4px solid;
+}
+.compare-col.warn { border-top-color: var(--red); }
+.compare-col.good { border-top-color: var(--green); }
+.compare-col h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.compare-col ul {
+  list-style: none;
+}
+.compare-col li {
+  position: relative;
+  padding: 8px 0 8px 24px;
+  font-size: 14px;
+  color: var(--slate);
+}
+.compare-col li::before {
+  content: "✓";
+  font-weight: 700;
+  position: absolute;
+  left: 0; top: 8px;
+}
+.compare-col.warn li::before { content: "✗"; color: var(--red); }
+.compare-col.good li::before { content: "✓"; color: var(--green); }
+.compare-col.neutral li::before { content: ""; }
+.compare-col.neutral li { padding-left: 0; }
+.compare-col li b { color: var(--ink); font-weight: 700; }
+
+/* ============================================================ */
+/* POSITION CARDS (RULE MODULES)                                 */
+/* ============================================================ */
+.position {
+  background: white;
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+  position: relative;
+}
+.position-head {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.position-num {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+}
+.position-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.position-tag {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--primary-bg);
+  color: var(--primary);
+  letter-spacing: 0.5px;
+}
+.position-tag.highlight { background: var(--amber-bg); color: var(--amber-d); }
+.position-tag.complex { background: var(--red-bg); color: var(--red-d); }
+
+.position-body { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 720px) { .position-body { grid-template-columns: 1fr; } }
+
+.position-block { }
+.position-block .lbl {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.position-block .lbl::before {
+  content: "🔹";
+  font-size: 10px;
+}
+.position-block p {
+  font-size: 14px;
+  color: var(--slate);
+  margin-bottom: 8px;
+  line-height: 1.55;
+}
+.position-block code, .position-block .code {
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 13px;
+  background: var(--paper-2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font-weight: 600;
+}
+.position-block .formula-box {
+  font-family: "Consolas", "Courier New", monospace;
+  background: var(--primary-bg);
+  border: 1px solid #C7D2FE;
+  padding: 12px 14px;
+  border-radius: 8px;
+  color: var(--primary-d);
+  font-weight: 600;
+  font-size: 13px;
+  white-space: pre-line;
+  line-height: 1.6;
+}
+
+table.rate-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  font-size: 13px;
+  margin-top: 4px;
+}
+table.rate-table th {
+  background: var(--paper-2);
+  color: var(--ink);
+  font-weight: 700;
+  padding: 8px 12px;
+  text-align: left;
+  border: 1px solid var(--line);
+  font-size: 12.5px;
+}
+table.rate-table td {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  color: var(--slate);
+}
+table.rate-table tr td:first-child {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.example-box {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: var(--accent-bg);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  font-size: 13.5px;
+  color: var(--slate);
+  line-height: 1.6;
+}
+.example-box b { color: var(--ink); }
+
+.warning-box {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: var(--amber-bg);
+  border-left: 3px solid var(--amber);
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  color: var(--amber-d);
+}
+
+/* ============================================================ */
+/* TAB 3: PHƯƠNG ÁN                                               */
+/* ============================================================ */
+.objectives {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 32px;
+}
+@media (max-width: 720px) { .objectives { grid-template-columns: 1fr; } }
+
+.objective {
+  background: white;
+  border-radius: 14px;
+  padding: 24px 26px;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--primary);
+  box-shadow: var(--shadow);
+}
+.objective:nth-child(2) { border-top-color: var(--accent); }
+.objective:nth-child(3) { border-top-color: var(--green); }
+.objective .obj-num {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.objective:nth-child(2) .obj-num { color: var(--accent); }
+.objective:nth-child(3) .obj-num { color: var(--green); }
+.objective h4 {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 10px;
+  line-height: 1.35;
+}
+.objective p {
+  font-size: 13.5px;
+  color: var(--slate);
+  line-height: 1.6;
+}
+.objective .output {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: var(--paper-2);
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--slate);
+}
+.objective .output b { color: var(--ink); }
+
+.scope {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+@media (max-width: 720px) { .scope { grid-template-columns: 1fr; } }
+
+.phase {
+  background: white;
+  border-radius: 14px;
+  padding: 26px 30px;
+  margin-bottom: 16px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.phase-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.phase-num {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent) 0%, #0891B2 100%);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.phase-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.phase p {
+  font-size: 14px;
+  color: var(--slate);
+  margin-bottom: 14px;
+}
+.phase ul {
+  list-style: none;
+  margin-bottom: 14px;
+}
+.phase li {
+  position: relative;
+  padding: 6px 0 6px 22px;
+  font-size: 13.5px;
+  color: var(--slate);
+}
+.phase li::before {
+  content: "▸";
+  color: var(--accent);
+  font-weight: 700;
+  position: absolute;
+  left: 0; top: 6px;
+}
+.phase li b { color: var(--ink); font-weight: 700; }
+.phase-foot {
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+  display: flex; flex-wrap: wrap;
+  gap: 14px;
+  font-size: 12.5px;
+  color: var(--mute);
+}
+.phase-foot span { display: flex; align-items: center; gap: 6px; }
+.phase-foot b { color: var(--ink); font-weight: 700; }
+
+/* timeline */
+.timeline {
+  background: white;
+  border-radius: 14px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  margin-bottom: 32px;
+}
+.timeline-row { display: grid; grid-template-columns: 110px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px dashed var(--line); align-items: center; }
+.timeline-row:last-child { border-bottom: none; }
+.timeline-week {
+  background: var(--primary-bg);
+  color: var(--primary);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  text-align: center;
+}
+.timeline-row.go .timeline-week { background: var(--green-bg); color: var(--green-d); }
+.timeline-name { font-size: 14px; color: var(--ink); }
+.timeline-name b { color: var(--ink); }
+
+.timeline-summary {
+  margin-top: 18px;
+  padding: 16px 20px;
+  background: var(--primary-bg);
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: var(--primary-d);
+  line-height: 1.7;
+}
+.timeline-summary b { color: var(--primary-d); font-weight: 700; }
+
+/* benefits */
+.benefits {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 720px) { .benefits { grid-template-columns: 1fr; } }
+.benefit-card {
+  background: white;
+  border-radius: 12px;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  transition: all 0.2s;
+}
+.benefit-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.benefit-card .icon {
+  font-size: 26px;
+  margin-bottom: 10px;
+  display: block;
+}
+.benefit-card h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.benefit-card p {
+  font-size: 13px;
+  color: var(--slate);
+  line-height: 1.55;
+}
+
+/* footer */
+.footer {
+  background: var(--ink);
+  color: rgba(255,255,255,0.7);
+  padding: 32px 0;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.footer .doc-name { color: white; font-weight: 600; }
+
+/* misc */
+.note-inline {
+  display: inline-block;
+  padding: 3px 10px;
+  background: var(--primary-bg);
+  color: var(--primary-d);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- HERO                                                          -->
+<!-- ============================================================ -->
+<header class="hero">
+  <div class="wrap">
+    <h1><span class="icon">🏭</span>HỆ THỐNG TÍNH LƯƠNG &amp; CHẤM CÔNG</h1>
+    <div class="company">CÔNG TY CỔ PHẦN NHỰA H&amp;D</div>
+    <div class="meta">Xóm 8, Trịnh Xá, Thiên Hương, Thủy Nguyên, Hải Phòng &nbsp;|&nbsp; Quy chế lương: NS-15 v1.0, áp dụng 01/10/2024</div>
+    <div class="month">Tháng 04/2026</div>
+  </div>
+</header>
+
+<!-- ============================================================ -->
+<!-- TABS                                                          -->
+<!-- ============================================================ -->
+<nav class="tabs">
+  <div class="wrap">
+    <div class="tabs-inner">
+      <button class="tab active" data-tab="overview">📊 Tổng quan</button>
+      <button class="tab" data-tab="mechanism">💰 Cơ chế tính lương</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+<!-- ============================================================ -->
+<!-- TAB 1: TỔNG QUAN                                              -->
+<!-- ============================================================ -->
+<div class="panel active" id="overview">
+
+  <div class="formula-hero">
+    <div class="label">💰 Công thức chủ đạo — Quy chế NS-15, Mục IV.6</div>
+    <div class="eq">L<sub>T</sub> <span class="op">=</span> L<sub>CB</sub> <span class="op">+</span> L<sub>KPI</sub> <span class="op">+</span> L<sub>TG</sub> <span class="op">+</span> L<sub>LĐ</sub> <span class="op">+</span> L<sub>BL</sub> <span class="op">+</span> PC</div>
+    <div class="note">+ L<sub>KHOÁN</sub> cho khối trả theo sản lượng (cắt túi, thổi màng). Một công thức cho cả 3 cơ chế: công nhật / khoán / KPI.</div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">📂 Cấu trúc file Excel "Lương tháng 04/2026"</h2>
+    <p class="section-sub">Hiện trạng: 470+ sheet trong 1 file 16,5 MB. Bốn lớp dữ liệu đang lẫn lộn trong cùng workbook.</p>
+    <div class="grid-cards">
+      <div class="num-card">
+        <div class="num">1</div>
+        <h4>Sheet3 / Sheet2</h4>
+        <p>Bảng lương trình bày, 64 cột, 1 dòng/người</p>
+      </div>
+      <div class="num-card">
+        <div class="num">2</div>
+        <h4>Lương Tổng</h4>
+        <p>196 dòng nhưng khai 16.382 cột — lỗi dimension</p>
+      </div>
+      <div class="num-card">
+        <div class="num">3</div>
+        <h4>Lương BP công nhật</h4>
+        <p>Khối trả theo thời gian, 81 cột</p>
+      </div>
+      <div class="num-card">
+        <div class="num">4</div>
+        <h4>Lương BP khoán</h4>
+        <p>Khối khoán sản lượng, 104 cột (schema khác)</p>
+      </div>
+      <div class="num-card">
+        <div class="num">5</div>
+        <h4>Lương BP KPI</h4>
+        <p>14 cột (schema khác hai sheet trên)</p>
+      </div>
+      <div class="num-card">
+        <div class="num">6</div>
+        <h4>Chấm công T4</h4>
+        <p>6.394 dòng log máy chấm công</p>
+      </div>
+      <div class="num-card">
+        <div class="num">7</div>
+        <h4>MCCT2 / MCCT7 / MCCT7.1</h4>
+        <p>Bảng công theo vị trí (7k+ dòng)</p>
+      </div>
+      <div class="num-card">
+        <div class="num">8</div>
+        <h4>Thâm niên / NPT</h4>
+        <p>Sheet phụ cấp thâm niên, người phụ thuộc</p>
+      </div>
+      <div class="num-card">
+        <div class="num">9</div>
+        <h4>Phép / Phép nghỉ việc</h4>
+        <p>Sheet quản lý phép theo người</p>
+      </div>
+      <div class="num-card">
+        <div class="num">10</div>
+        <h4>Phụ cấp nhà trọ</h4>
+        <p>Sheet phụ cấp riêng, nối bằng tên</p>
+      </div>
+      <div class="num-card">
+        <div class="num">11</div>
+        <h4>Thưởng mới / Thưởng lễ</h4>
+        <p>Thưởng người mới, đi làm lễ</p>
+      </div>
+      <div class="num-card">
+        <div class="num">12</div>
+        <h4>Bù — truy lương T6/T7</h4>
+        <p>Bù lương các tháng trước — schema đổi mỗi kỳ</p>
+      </div>
+      <div class="num-card">
+        <div class="num">13</div>
+        <h4>429 sheet "Kangatang_n"</h4>
+        <p>Rỗng — rác kỹ thuật từ thao tác copy/split cũ</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">🔄 Luồng tính lương (4 giai đoạn đề xuất)</h2>
+    <p class="section-sub">Số hoá ▸ Chuẩn hoá ▸ Áp dụng quy chế ▸ Tổng hợp ra lương. Mỗi giai đoạn có vai trò rõ.</p>
+    <div class="flow">
+      <div class="flow-row">
+        <div class="flow-step">
+          <div class="step-circle">1</div>
+          <div class="step-name">Số hoá</div>
+          <div class="step-desc">Chấm công · Sản lượng · Phiếu duyệt · Master</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle">2</div>
+          <div class="step-name">Chuẩn hoá</div>
+          <div class="step-desc">4 bảng staging sạch (attendance, production, events, employee)</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle">3</div>
+          <div class="step-name">Áp dụng quy chế</div>
+          <div class="step-desc">7 module rule theo NS-15: L_CB, L_KHOÁN, L_TG, L_LĐ, PC, L_BL, L_KPI</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle">4</div>
+          <div class="step-name">Tổng hợp</div>
+          <div class="step-desc">Phiếu lương tự sinh · Workflow 08→13 · Lưu trữ kỳ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">📖 Bảng thuật ngữ</h2>
+    <p class="section-sub">Theo Quy chế lương nội bộ NS-15.</p>
+    <div class="glossary">
+      <div class="row"><div class="term">L<sub>T</sub></div><div class="def">Tổng tiền lương tháng</div></div>
+      <div class="row"><div class="term">L<sub>CB</sub></div><div class="def">Lương cơ bản theo chức danh</div></div>
+      <div class="row"><div class="term">L<sub>KPI</sub></div><div class="def">Tiền lương thưởng hiệu suất</div></div>
+      <div class="row"><div class="term">L<sub>TG</sub></div><div class="def">Lương thêm giờ (OT)</div></div>
+      <div class="row"><div class="term">L<sub>LĐ</sub></div><div class="def">Lương làm đêm (23h–7h)</div></div>
+      <div class="row"><div class="term">L<sub>BL</sub></div><div class="def">Bù lương · trợ cấp đặc thù</div></div>
+      <div class="row"><div class="term">PC</div><div class="def">Phụ cấp (ăn ca, bốc vác, ĐT, chuyên cần, thâm niên...)</div></div>
+      <div class="row"><div class="term">L<sub>KHOÁN</sub></div><div class="def">Lương khoán sản lượng (cắt, thổi)</div></div>
+      <div class="row"><div class="term">L<sub>TBG</sub></div><div class="def">Tiền lương trung bình 1 giờ</div></div>
+      <div class="row"><div class="term">Ca3</div><div class="def">Ca đêm 23h–7h sáng hôm sau</div></div>
+      <div class="row"><div class="term">MSNV</div><div class="def">Mã số nhân viên — khoá định danh duy nhất</div></div>
+      <div class="row"><div class="term">BHXH</div><div class="def">Bảo hiểm xã hội</div></div>
+      <div class="row"><div class="term">NPT</div><div class="def">Người phụ thuộc (giảm trừ thuế TNCN)</div></div>
+      <div class="row"><div class="term">TNCN</div><div class="def">Thuế thu nhập cá nhân</div></div>
+      <div class="row"><div class="term">MCCT</div><div class="def">Máy chấm công (MCCT2, MCCT7, MCCT7.1)</div></div>
+      <div class="row"><div class="term">POC</div><div class="def">Proof of Concept — triển khai thử nghiệm</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 2: CƠ CHẾ TÍNH LƯƠNG                                      -->
+<!-- ============================================================ -->
+<div class="panel" id="mechanism">
+
+  <div class="section">
+    <h2 class="section-title">💰 Tổng hợp cơ chế tính lương</h2>
+    <p class="section-sub">Cùng cách trả lương theo Quy chế NS-15, nhưng nơi thực thi tách thành 2 phần rõ ràng.</p>
+    <div class="compare">
+      <div class="compare-col warn">
+        <h3>📋 Đang thủ công trong file Excel</h3>
+        <ul>
+          <li><b>Quy đổi công</b> từ log máy chấm công thành ngày công, công hệ số</li>
+          <li><b>Tra phụ cấp ăn ca</b> theo bộ phận × loại ca (20/30/50k)</li>
+          <li><b>Tính OT</b> 150/200/200/250% theo loại ngày + Ca3</li>
+          <li><b>Tính trợ cấp hỗ trợ</b> tạo hạt &amp; thổi màng (63đ, 463đ, 20/80%)</li>
+          <li><b>Bù lương</b> các tháng trước (cột "Bù T6/T7" dựng tay)</li>
+          <li><b>Nối dữ liệu bằng tên người</b> qua VLOOKUP — sai khi trùng tên</li>
+        </ul>
+      </div>
+      <div class="compare-col good">
+        <h3>💻 Có thể tự động trên hệ thống Base</h3>
+        <ul>
+          <li><b>Lương cứng L_CB</b> theo bậc lương × ngày công</li>
+          <li><b>Chấm công</b> (đồng bộ máy MCCT → công hệ số)</li>
+          <li><b>Phụ cấp danh mục</b> (ăn ca, ĐT, đi lại, chuyên cần, thâm niên)</li>
+          <li><b>BHXH, NPT, giảm trừ</b> tự động theo cấu hình</li>
+          <li><b>Thuế TNCN</b> (biểu lũy tiến từng phần)</li>
+          <li><b>Workflow chốt lương</b> 08→13 (kế toán kiểm → GĐ ký → chi trả)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="compare" style="margin-top:-12px">
+      <div class="compare-col" style="border-top:4px solid var(--amber); grid-column: 1/-1;">
+        <h3>🔢 Tính ngoài, nhập kết quả vào Base</h3>
+        <ul>
+          <li><b>L_KHOÁN</b> — lương sản lượng (cắt túi, thổi màng): tính theo qty × đơn giá từng tổ, rồi nhập tổng vào trường tương ứng trên Base</li>
+          <li><b>L_KPI</b> — thưởng hiệu suất: tính theo định mức / chỉ tiêu từng bộ phận, nhập kết quả vào Base sau khi xác nhận</li>
+          <li><b>L_BL (bù lương)</b> — bù công ngừng việc, hỗ trợ tạo hạt / thổi màng: tính ngoài theo rule phức tạp có version, nhập số cuối vào Base</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 rule modules in AHS card style -->
+  <div class="section">
+    <h2 class="section-title">⚙️ 7 module công thức theo Quy chế NS-15</h2>
+    <p class="section-sub">Mỗi module thực thi đúng một công thức trong Quy chế. Quy chế đổi → cập nhật module, không sửa code.</p>
+
+    <!-- 1. L_CB -->
+    <div class="position">
+      <div class="position-head">
+        <div class="position-num">1</div>
+        <div>
+          <div class="position-name">👷 Lương cơ bản — L<sub>CB</sub></div>
+          <span class="position-tag">Trả theo thời gian</span>
+        </div>
+      </div>
+      <div class="position-body">
+        <div class="position-block">
+          <div class="lbl">Áp dụng cho</div>
+          <p>VP, hành chính, khối SX trả theo thời gian (không khoán SL).</p>
+          <div class="lbl" style="margin-top:14px">Công thức</div>
+          <div class="formula-box">L_CB = base_LCB × (actual_days / 26)</div>
+        </div>
+        <div class="position-block">
+          <div class="lbl">Cơ sở tính</div>
+          <p><code>base_LCB</code>: lương cơ bản theo chức danh × bậc/hệ số (Mục III Quy chế).</p>
+          <p><code>actual_days</code>: ngày công thực tế trong kỳ.</p>
+          <p>Ngày công chuẩn: <b>26 ngày</b> / tháng.</p>
+          <div class="example-box">
+            <b>Ví dụ:</b> NV văn phòng, LCB hợp đồng 8.000.000đ, đi làm 24 ngày →<br>
+            L_CB = 8.000.000 × (24 / 26) = <b>7.384.615đ</b>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. L_KHOÁN -->
+    <div class="position">
+      <div class="position-head">
+        <div class="position-num">2</div>
+        <div>
+          <div class="position-name">📦 Lương sản lượng — L<sub>KHOÁN</sub></div>
+          <span class="position-tag">Trả theo SL</span>
+          <span class="position-tag complex">🔢 Tính ngoài → nhập vào Base</span>
+        </div>
+      </div>
+      <div class="position-body">
+        <div class="position-block">
+          <div class="lbl">Áp dụng cho</div>
+          <p>Khối cắt túi, thổi màng. Khoán theo sản lượng làm ra trên từng tổ theo đơn giá sản phẩm.</p>
+          <div class="lbl" style="margin-top:14px">Công thức</div>
+          <div class="formula-box">L_khoán = Σ (qty_i × unit_price_i)</div>
+        </div>
+        <div class="position-block">
+          <div class="lbl">Cơ sở tính</div>
+          <table class="rate-table">
+            <thead><tr><th>Loại SP</th><th>Đơn giá</th><th>Ghi chú</th></tr></thead>
+            <tbody>
+              <tr><td>TP &lt; 23cm</td><td>Đơn giá A</td><td>Cắt túi nhỏ</td></tr>
+              <tr><td>TP ≥ 23cm</td><td>Đơn giá B</td><td>Cắt túi lớn</td></tr>
+              <tr><td>SL thổi</td><td>Đơn giá thổi</td><td>Thổi màng</td></tr>
+              <tr><td>+ Đơn giá tổ trưởng</td><td>Cộng thêm</td><td>Phụ cấp vị trí</td></tr>
+            </tbody>
+          </table>
+          <div class="warning-box">⚠️ Loại trừ ngày phép, lễ, ốm khi tính SL chia khoán.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. L_KPI -->
+    <div class="position">
+      <div class="position-head">
+        <div class="position-num">3</div>
+        <div>
+          <div class="position-name">🎯 Thưởng hiệu suất — L<sub>KPI</sub></div>
+          <span class="position-tag">Thưởng năng suất</span>
+          <span class="position-tag complex">🔢 Tính ngoài → nhập vào Base</span>
+        </div>
+      </div>
+      <div class="position-body">
+        <div class="position-block">
+          <div class="lbl">Cơ sở</div>
+          <p>Thưởng theo năng suất, chất lượng, hiệu quả công việc, vượt sản lượng (Mục III Quy chế).</p>
+          <div class="formula-box">L_KPI = f(năng suất, chất lượng, vượt SL)</div>
+        </div>
+        <div class="position-block">
+          <div class="lbl">Áp dụng</div>
+          <p>Theo định mức &amp; chỉ tiêu của từng bộ phận.</p>
+          <p>Vd: tạo hạt đạt ≥ 165 tấn/4 máy/tháng → kích hoạt thưởng tổ.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. L_TG  -->
+    <div class="position">
+      <div class="position-head">
+        <div class="position-num">4</div>
+        <div>
+          <div class="position-name">⏰ Lương thêm giờ (OT) — L<sub>TG</sub></div>
+          <span class="position-tag highlight">Phức tạp — cần GĐ duyệt</span>
+        </div>
+      </div>
+      <div class="position-body">
+        <div class="position-block">
+          <div class="lbl">Công thức cơ sở</div>
+          <div class="formula-box">L_TBG = (L_K / 26) / 8
+
+L_TGBT = L_TBG × (150% | 200%) × n + L_PCG
+L_TGD  = L_TBG × (200% | 250%) × n + L_PCG</div>
+          <p style="margin-top:10px"><code>L_TBG</code>: lương trung bình 1 giờ &nbsp;·&nbsp; <code>n</code>: tổng giờ làm thêm &nbsp;·&nbsp; <code>L_PCG</code>: phụ cấp giờ</p>
+        </div>
+        <div class="position-block">
+          <div class="lbl">Hệ số theo loại ngày</div>
+          <table class="rate-table">
+            <thead><tr><th>Loại</th><th>Ngày thường</th><th>CN / Lễ</th></tr></thead>
+            <tbody>
+              <tr><td>OT giờ hành chính</td><td>150%</td><td>200%</td></tr>
+              <tr><td>OT Ca3 (23h–7h)</td><td>200%</td><td>250%</td></tr>
+            </tbody>
+          </table>
+          <div class="warning-box">⚠️ Bắt buộc có GĐ duyệt. Tối đa 4h/ngày, 200h/năm (300h trường hợp đặc biệt). Trực ca cố định KHÔNG tính OT.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. L_LĐ -->
+    <div class="position">
+      <div class="position-head">
+        <div class="position-num">5</div>
+        <div>
+          <div class="position-name">🌙 Lương làm đêm — L<sub>LĐ</sub></div>
+          <span class="position-tag">Ca 23h–7h</span>
+        </div>
+      </div>
+      <div class="position-body">
+        <div class="position-block">
+          <div class="lbl">Công thức</div>
+          <div class="formula-box">L_LĐ = L_TBG × n × 30%</div>
+          <p style="margin-top:10px">Phụ cấp đêm 30% cho khối công nhật đi ca.</p>
+        </div>
+        <div class="position-block">
+          <div class="lbl">Áp dụng</div>
+          <p>Khối công nhật đi ca (tạo hạt…), thời gian làm việc 23h–7h sáng hôm sau.</p>
+          <div class="example-box">
+            <b>Ví dụ:</b> CN tạo hạt, L_TBG = 28.000đ/h, làm Ca3 đủ 8h →<br>
+            L_LĐ = 28.000 × 8 × 30% = <b>67.200đ</b>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. PC -->
+    <div class="position">
+      <div class="position-head">
+        <div class="position-num">6</div>
+        <div>
+          <div class="position-name">💵 Phụ cấp — PC</div>
+          <span class="position-tag">14+ loại</span>
+        </div>
+      </div>
+      <div class="position-body">
+        <div class="position-block">
+          <div class="lbl">Phụ cấp ăn ca (theo bộ phận × loại ca)</div>
+          <table class="rate-table">
+            <thead><tr><th>Bộ phận</th><th>Sáng</th><th>Chiều</th><th>Đêm</th></tr></thead>
+            <tbody>
+              <tr><td>Cơ khí, lái xe, phụ kho, tạo hạt, VP</td><td>20k</td><td>30k</td><td>50k</td></tr>
+              <tr><td>SX cắt túi, thổi màng</td><td>20k (CN)</td><td>30k</td><td>30k</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="position-block">
+          <div class="lbl">Phụ cấp bốc vác (theo tấn)</div>
+          <table class="rate-table">
+            <thead><tr><th>Loại</th><th>Đơn giá</th></tr></thead>
+            <tbody>
+              <tr><td>Lái xe vận chuyển bao bì</td><td>50k/tấn (2 chiều)</td></tr>
+              <tr><td>Phụ kho hàng túi</td><td>15k/tấn (1 chiều)</td></tr>
+              <tr><td>Phụ kho hàng hạt</td><td>25k/tấn (1 chiều)</td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:10px"><b>Khác:</b> chuyên cần · ĐT · đi lại · thâm niên · độc hại · y tế · công tác xa (30k/70k/300k/đêm).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. L_BL -->
+    <div class="position">
+      <div class="position-head">
+        <div class="position-num">7</div>
+        <div>
+          <div class="position-name">🛟 Bù lương · Trợ cấp đặc thù — L<sub>BL</sub></div>
+          <span class="position-tag complex">Cụm phức tạp nhất</span>
+          <span class="position-tag complex">🔢 Tính ngoài → nhập vào Base</span>
+        </div>
+      </div>
+      <div class="position-body">
+        <div class="position-block">
+          <div class="lbl">Bù công ngừng việc</div>
+          <table class="rate-table">
+            <thead><tr><th>Bộ phận</th><th>Mức bù</th></tr></thead>
+            <tbody>
+              <tr><td>Phân loại</td><td>40% LCB</td></tr>
+              <tr><td>Các BP khác</td><td>70% mức đóng BHXH</td></tr>
+            </tbody>
+          </table>
+          <div class="lbl" style="margin-top:14px">Trợ cấp kiêm nhiệm</div>
+          <div class="formula-box">VP:   70% LCB / 26 × n_ngày
+Xe nâng & phân loại: 100% LCB / 26 × n_ngày</div>
+        </div>
+        <div class="position-block">
+          <div class="lbl">Hỗ trợ tạo hạt</div>
+          <p>NV nghỉ ≥2 ngày, ca duy trì SL ≥ TB → chia đều = số ngày nghỉ × 100% lương người nghỉ (trừ chuyên cần).</p>
+          <div class="lbl" style="margin-top:14px">Hỗ trợ thổi màng</div>
+          <div class="formula-box">CT nghỉ: Ca phó = SL × 63đ × 20%
+         CN = 80% SL còn lại
+CN nghỉ: CT = 20% × (SL_TB × n × 463đ)
+         Ca phó+CN = 80% SL còn lại</div>
+          <div class="warning-box">⚠️ Đây là module cần <b>rule engine có version</b>: sửa luật năm 2026 không phá lương 2025.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- solution panel removed -->
+<div class="panel" id="solution" style="display:none!important">
+
+  <div class="section">
+    <h2 class="section-title">🎯 Mục tiêu dự án</h2>
+    <p class="section-sub">Ba mục tiêu rõ ràng, đo lường được.</p>
+    <div class="objectives">
+      <div class="objective">
+        <div class="obj-num">1</div>
+        <h4>Chuẩn hoá dữ liệu &amp; tách lớp xử lý</h4>
+        <p>Tách "1 file Excel gánh cả quy trình" thành 4 lớp: số hoá → chuẩn hoá → quy chế → output. Khoá định danh bằng MSNV thay vì tên người.</p>
+        <div class="output"><b>📊 Output:</b> Mô hình dữ liệu 4 tầng, không còn VLOOKUP rải rác</div>
+      </div>
+      <div class="objective">
+        <div class="obj-num">2</div>
+        <h4>Tự động hoá theo Quy chế NS-15</h4>
+        <p>Số hoá 7 module công thức trong Quy chế thành rule engine có version. Mọi đại lượng đều truy được nguồn + phiên bản quy chế đã áp dụng.</p>
+        <div class="output"><b>📊 Output:</b> Rule engine version-able + audit log đầy đủ</div>
+      </div>
+      <div class="objective">
+        <div class="obj-num">3</div>
+        <h4>Workflow chốt lương 08→13</h4>
+        <p>Quy trình duyệt &amp; chi trả theo đúng Mục IV.5 Quy chế: 08 hoàn thiện, 09 kế toán kiểm, 10 trình ký, 10-13 chi trả. Mỗi bước có trạng thái.</p>
+        <div class="output"><b>📊 Output:</b> Workflow phê duyệt nhiều cấp, không khoá file</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">📋 Phạm vi triển khai</h2>
+    <div class="scope">
+      <div class="compare-col good">
+        <h3>✅ Trong phạm vi</h3>
+        <ul>
+          <li>Mô hình dữ liệu 4 tầng &amp; quy tắc nhập liệu</li>
+          <li>Đồng bộ máy chấm công MCCT → staging</li>
+          <li>7 module công thức theo Quy chế NS-15</li>
+          <li>Workflow chốt lương 08→13 có duyệt</li>
+          <li>Phiếu lương tự sinh (gross + net)</li>
+          <li>Báo cáo &amp; dashboard cho HR / GĐ</li>
+        </ul>
+      </div>
+      <div class="compare-col neutral" style="border-top-color: var(--mute)">
+        <h3>💻 Ngoài phạm vi POC ban đầu</h3>
+        <ul style="list-style:none">
+          <li style="color:var(--slate)"><span style="color:var(--mute)">○</span> Tích hợp ERP / kế toán tổng hợp</li>
+          <li style="color:var(--slate)"><span style="color:var(--mute)">○</span> Mobile app cho NV xem phiếu lương</li>
+          <li style="color:var(--slate)"><span style="color:var(--mute)">○</span> Quản lý hợp đồng &amp; tuyển dụng</li>
+          <li style="color:var(--slate)"><span style="color:var(--mute)">○</span> Đánh giá năng lực &amp; phát triển</li>
+          <li style="color:var(--slate)"><span style="color:var(--mute)">○</span> Báo cáo BHXH tự động lên cơ quan</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">🚀 Phương án triển khai chi tiết</h2>
+    <p class="section-sub">Bốn phase nối tiếp, có thể go-live theo kỳ lương tháng.</p>
+
+    <div class="phase">
+      <div class="phase-head">
+        <div class="phase-num">1</div>
+        <div class="phase-name">Workshop quy chế &amp; cấu hình master data</div>
+      </div>
+      <p>Đối soát quy chế NS-15 với phòng nhân sự &amp; kế toán. Số hoá danh mục, chức danh, bậc lương, đơn giá khoán, mức phụ cấp.</p>
+      <ul>
+        <li><b>Workshop:</b> đọc kỹ NS-15 với phòng nhân sự, làm rõ các "ngoại lệ" chưa có trong quy chế</li>
+        <li><b>Cấu hình master:</b> chức danh (10 nhóm), bậc lương, hệ số, đơn giá khoán cắt/thổi</li>
+        <li><b>Cấu hình phụ cấp:</b> 14+ loại phụ cấp theo bộ phận × ca</li>
+        <li><b>Map nhân sự:</b> gán MSNV cho 113 nhân viên (xử lý các trường hợp thiếu mã)</li>
+        <li><b>Output:</b> Master data sạch + tài liệu cấu hình quy chế</li>
+      </ul>
+      <div class="phase-foot">
+        <span>⏱️ <b>Thời gian:</b> 2 tuần</span>
+        <span>👤 <b>Thực hiện:</b> Solution Engineer + HR H&amp;D</span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-head">
+        <div class="phase-num">2</div>
+        <div class="phase-name">POC trên xưởng cắt túi (1 bộ phận điển hình)</div>
+      </div>
+      <p>Chọn xưởng cắt túi vì hội đủ <b>cả 3 cơ chế</b>: lương cơ bản + khoán SL + phụ cấp đa loại. Triển khai full pipeline trên 1 kỳ lương.</p>
+      <ul>
+        <li><b>Đồng bộ MCCT:</b> kết nối máy chấm công → staging raw_timeclock</li>
+        <li><b>Quy đổi công:</b> raw → attendance_summary (C2/C3/lễ/phép)</li>
+        <li><b>Nhập sản lượng:</b> form ghi nhận TP &lt;23/&gt;23cm theo tổ &amp; ngày</li>
+        <li><b>Chạy rule:</b> L_CB, L_KHOÁN, PC, L_TG, L_LĐ cho ~30 NV xưởng cắt</li>
+        <li><b>Phiếu lương tự sinh:</b> mẫu phiếu chính thức + chi tiết tính toán</li>
+      </ul>
+      <div class="phase-foot">
+        <span>⏱️ <b>Thời gian:</b> 3 tuần</span>
+        <span>👤 <b>Thực hiện:</b> SE + Dev + HR</span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-head">
+        <div class="phase-num">3</div>
+        <div class="phase-name">Đối soát song song với bảng lương Excel</div>
+      </div>
+      <p>Chạy hệ thống mới &amp; Excel cũ song song 1 kỳ. Đối soát từng dòng, từng số. Đây là bước <b>không thể bỏ qua</b> để khách yên tâm chuyển đổi.</p>
+      <ul>
+        <li><b>Chạy đồng thời:</b> hệ thống mới + bảng Excel cũ trong tháng đối soát</li>
+        <li><b>So khớp:</b> phiếu lương từng NV — gross, net, từng phụ cấp, từng giảm trừ</li>
+        <li><b>Xử lý sai lệch:</b> truy ngược về nguồn, vá quy tắc nếu cần</li>
+        <li><b>Ký biên bản:</b> phòng nhân sự &amp; kế toán xác nhận hệ thống mới đúng quy chế</li>
+        <li><b>Training:</b> HR + kế toán dùng hệ thống thành thạo</li>
+      </ul>
+      <div class="phase-foot">
+        <span>⏱️ <b>Thời gian:</b> 2 tuần (= 1 kỳ lương)</span>
+        <span>👤 <b>Thực hiện:</b> SE + HR + Kế toán</span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-head">
+        <div class="phase-num">4</div>
+        <div class="phase-name">Mở rộng toàn công ty &amp; Go-live</div>
+      </div>
+      <p>Sau khi POC đối soát thành công, mở rộng ra tất cả bộ phận: thổi màng, tạo hạt, phân loại, VP, bảo vệ – tạp vụ.</p>
+      <ul>
+        <li><b>On-board tất cả NV:</b> 113 nhân sự, 10 nhóm chức danh</li>
+        <li><b>Kích hoạt workflow 08→13:</b> chốt kỳ theo đúng lịch quy chế</li>
+        <li><b>Dashboard quản lý:</b> cho HR (toàn công ty), GĐ (chi phí lương theo BP), Trưởng BP (team)</li>
+        <li><b>Đóng file Excel cũ:</b> kỳ lương cuối Excel chốt &amp; archive</li>
+        <li><b>Hỗ trợ vận hành:</b> 2 kỳ lương đầu sau go-live</li>
+      </ul>
+      <div class="phase-foot">
+        <span>⏱️ <b>Thời gian:</b> 3 tuần + hỗ trợ 2 kỳ</span>
+        <span>👤 <b>Thực hiện:</b> Toàn team Solution + CSKH</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">📅 Timeline tổng thể</h2>
+    <p class="section-sub">~10 tuần (2,5 tháng) cho POC + Go-live.</p>
+    <div class="timeline">
+      <div class="timeline-row">
+        <div class="timeline-week">Tuần 1–2</div>
+        <div class="timeline-name"><b>Phase 1:</b> Workshop quy chế &amp; cấu hình master data</div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-week">Tuần 3–5</div>
+        <div class="timeline-name"><b>Phase 2:</b> POC trên xưởng cắt túi (1 bộ phận)</div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-week">Tuần 6–7</div>
+        <div class="timeline-name"><b>Phase 3:</b> Đối soát song song với Excel + training HR</div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-week">Tuần 8–10</div>
+        <div class="timeline-name"><b>Phase 4:</b> Mở rộng toàn công ty + Go-live</div>
+      </div>
+      <div class="timeline-row go">
+        <div class="timeline-week">Tuần 11+</div>
+        <div class="timeline-name"><b>Hỗ trợ vận hành:</b> 2 kỳ lương đầu sau go-live</div>
+      </div>
+      <div class="timeline-summary">
+        <b>⏱️ Tổng thời gian:</b> ~10 tuần (2,5 tháng) cho POC + Go-live<br>
+        <b>👥 Team:</b> 3 người (1 Solution Engineer chính + 1 Dev + 1 Customer Success)<br>
+        <b>💰 Chi phí:</b> Liên hệ để báo giá chi tiết theo quy mô triển khai
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">✨ Lợi ích khi triển khai</h2>
+    <div class="benefits">
+      <div class="benefit-card">
+        <span class="icon">⚡</span>
+        <h4>Tự động hoá</h4>
+        <p>Giảm ~80% thời gian tính lương thủ công. Từ ~5 ngày → 1 ngày mỗi kỳ. HR &amp; kế toán dành thời gian cho việc khác.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="icon">🎯</span>
+        <h4>Chính xác</h4>
+        <p>Khoá MSNV duy nhất, không còn sai trùng tên. Quy tắc áp dụng đồng nhất, không phụ thuộc người gõ công thức.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="icon">🔍</span>
+        <h4>Audit được</h4>
+        <p>Mọi con số trên phiếu lương truy được về nguồn (raw chấm công) + phiên bản quy chế đã áp dụng. Bảo vệ khi có tranh chấp.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="icon">⚙️</span>
+        <h4>Mở rộng dễ</h4>
+        <p>Thêm phụ cấp mới, đổi đơn giá khoán, đổi % bù công = thao tác cấu hình. Không cần dự án IT mỗi lần đổi quy chế.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="icon">👥</span>
+        <h4>Đồng thời nhiều người</h4>
+        <p>HR, kế toán, GĐ cùng vào hệ thống một lúc. Không còn cảnh "file Excel đang khoá vì ai đó đang sửa".</p>
+      </div>
+      <div class="benefit-card">
+        <span class="icon">📊</span>
+        <h4>Báo cáo realtime</h4>
+        <p>Dashboard chi phí lương theo bộ phận, theo kỳ. GĐ ra quyết định nhanh hơn. Lưu lịch sử 5 năm cho audit.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+  </div>
+</main>
+
+<!-- ============================================================ -->
+<!-- FOOTER                                                        -->
+<!-- ============================================================ -->
+<footer class="footer">
+  <div class="wrap">
+    📞 Liên hệ: Solution Engineering &nbsp;|&nbsp; ✉️ se@base.vn<br>
+    <span class="doc-name">Tài liệu đề xuất hệ thống tính lương — Công ty CP Nhựa H&amp;D — Tháng 04/2026</span>
+  </div>
+</footer>
+
+<script>
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.panel');
+
+tabs.forEach(t => {
+  t.addEventListener('click', () => {
+    const id = t.dataset.tab;
+    tabs.forEach(x => x.classList.toggle('active', x === t));
+    panels.forEach(p => p.classList.toggle('active', p.id === id));
+    // Scroll to top of content
+    window.scrollTo({ top: document.querySelector('.tabs').offsetTop - 1, behavior: 'smooth' });
+  });
+});
+
+// Allow direct URL hash navigation
+if (location.hash) {
+  const id = location.hash.slice(1);
+  const tab = document.querySelector(`.tab[data-tab="${id}"]`);
+  if (tab) tab.click();
+}
+</script>
+
+</body>
+</html>
